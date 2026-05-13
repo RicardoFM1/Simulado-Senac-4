@@ -4,6 +4,9 @@ use Dotenv\Dotenv;
 
 require_once __DIR__ . "/..//vendor/autoload.php";
 require_once __DIR__ . "/../Controllers/Usuario/usuarioController.php";
+require_once __DIR__ . "/../Controllers/Mesa/mesaController.php";
+require_once __DIR__ . "/../Controllers/Convidado/convidadoController.php";
+
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
@@ -64,5 +67,22 @@ if ($rota === '/mesa') {
     }
     if ($metodo === 'DELETE') {
         $mesaController->deletarMesa();
+    }
+}
+
+if ($rota === '/convidado') {
+    $convidadoController = new ConvidadoController();
+
+    if ($metodo === 'GET') {
+        $convidadoController->listarConvidados();
+    }
+    if ($metodo === 'POST') {
+        $convidadoController->criarConvidado();
+    }
+    if ($metodo === 'PUT') {
+        $convidadoController->atualizarConvidado();
+    }
+    if ($metodo === 'DELETE') {
+        $convidadoController->deletarConvidado();
     }
 }
