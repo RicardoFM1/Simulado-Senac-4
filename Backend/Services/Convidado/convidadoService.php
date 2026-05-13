@@ -2,6 +2,7 @@
 
 
 require_once __DIR__ . "/../../Connection/db.php";
+require_once __DIR__ . "/../Mesa/mesaService.php";
 
 
 class ConvidadoService
@@ -22,6 +23,33 @@ class ConvidadoService
         $buscar = $this->db->prepare('SELECT * FROM convidado WHERE email = :email');
         $buscar->execute([
             ':email' => $emailConvidado
+        ]);
+
+        $convidado = $buscar->fetch();
+
+        if (empty($convidado)) {
+            return [
+                'sucesso' => false,
+                'mensagem' => 'Convidado não encontrado',
+                'codigo' => 404
+            ];
+        }
+
+        return [
+            'sucesso' => true,
+            'dados' => $convidado
+        ];
+    }
+
+    public function buscarConvidadoPorMesaId($idMesa)
+    {
+        if (empty($idMesa)) {
+            throw new Exception('Dados inválidos', 400);
+        }
+
+        $buscar = $this->db->prepare('SELECT * FROM convidado WHERE mesa_idmesa = :mesa_idmesa');
+        $buscar->execute([
+            ':mesa_idmesa' => $idMesa
         ]);
 
         $convidado = $buscar->fetch();
@@ -74,7 +102,13 @@ class ConvidadoService
                 ':telefone' => $convidadoDados['telefone'],
             ]);
 
-            // Lógica da mesa lotada;
+            $mesaComReferencia = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
+            $convidadosNaMesa = $this->buscarConvidadoPorMesaId($convidadoDados['mesa_idmesa']);
+
+            if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade']) {
+                throw new Exception('Mesa lotada', 409);
+            }
+
             return [
                 'sucesso' => true,
                 'mensagem' => 'Convidado criado com sucesso'
@@ -118,7 +152,14 @@ class ConvidadoService
             if ($convidado['dados']['confirmacao'] === 'confirmado') {
                 throw new Exception('Não é possível cancelar um convidado confirmado', 400);
             }
-            // Lógica da mesa lotada;
+
+
+            $mesaComReferencia = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
+            $convidadosNaMesa = $this->buscarConvidadoPorMesaId($convidadoDados['mesa_idmesa']);
+
+            if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade'] && $convidado['dados']['mesa_idmesa'] !== $convidadoDados['mesa_idmesa']) {
+                throw new Exception('Mesa lotada', 409);
+            }
 
 
             $atualizar = $this->db->prepare('UPDATE convidado SET nome = :nome, sobrenome = :sobrenome, email = :email, cpf = :cpf, categoria = :categoria, confirmacao = :confirmacao, 
