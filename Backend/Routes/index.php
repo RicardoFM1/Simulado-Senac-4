@@ -48,3 +48,21 @@ if ($rota === '/usuario/login') {
         $usuarioController->fazerLogin();
     }
 }
+
+
+if ($rota === '/mesa') {
+    $mesaController = new MesaController();
+
+    if ($metodo === 'GET') {
+        $mesaController->listarMesas();
+    }
+    if ($metodo === 'POST') {
+        $mesaController->criarMesa();
+    }
+    if ($metodo === 'PUT') {
+        $mesaController->atualizarMesa();
+    }
+    if ($metodo === 'DELETE') {
+        $mesaController->deletarMesa();
+    }
+}

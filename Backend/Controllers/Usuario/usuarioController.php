@@ -82,6 +82,7 @@ class UsuarioController
             $this->apenasAdmin();
             $dados = json_decode(file_get_contents('php://input'), true);
             $this->validarDados($dados);
+            http_response_code(201);
 
             echo json_encode($this->usuarioService->criarUsuario($dados));
             exit;
@@ -98,6 +99,8 @@ class UsuarioController
     public function fazerLogin()
     {
         $dados = json_decode(file_get_contents('php://input'), true);
+        http_response_code(200);
+
         echo json_encode($this->usuarioService->fazerLogin($dados, $this->chaveSecreta));
         exit;
     }
@@ -109,6 +112,8 @@ class UsuarioController
             $dados = json_decode(file_get_contents('php://input'), true);
             $this->validarDados($dados);
             $emailUsuario = $_GET['email_usuario'];
+            http_response_code(200);
+
             echo json_encode($this->usuarioService->atualizarUsuario($dados, $emailUsuario));
             exit;
         } catch (Exception $e) {
@@ -125,6 +130,7 @@ class UsuarioController
     {
         try {
             $this->apenasAdmin();
+            http_response_code(200);
 
 
             $emailUsuario = $_GET['email_usuario'];
