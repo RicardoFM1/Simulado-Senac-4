@@ -1,6 +1,6 @@
 <?php
 
-use Firebase\JWT\JWT;
+
 
 date_default_timezone_set('America/Sao_Paulo');
 require_once __DIR__ . "/../../Connection/db.php";

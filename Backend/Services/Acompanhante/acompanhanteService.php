@@ -1,11 +1,10 @@
 <?php
 
-use Firebase\JWT\JWT;
 
 require_once __DIR__ . "/../../Connection/db.php";
 
 
-class ConvidadoService
+class AcompanhanteService
 {
     protected $db;
 
@@ -14,180 +13,153 @@ class ConvidadoService
         $this->db = db();
     }
 
-    public function buscarConvidadoPorEmail($emailConvidado)
+    public function buscarAcompanhantePorEmail($emailAcompanhante)
     {
-        if (empty($emailConvidado)) {
+        if (empty($emailAcompanhante)) {
             throw new Exception('Dados inválidos', 400);
         }
 
-        $buscar = $this->db->prepare('SELECT * FROM convidado WHERE email = :email');
+        $buscar = $this->db->prepare('SELECT * FROM acompanhante WHERE email = :email');
         $buscar->execute([
-            ':email' => $emailConvidado
+            ':email' => $emailAcompanhante
         ]);
 
-        $convidado = $buscar->fetch();
+        $acompanhante = $buscar->fetch();
 
-        if (empty($convidado)) {
+        if (empty($acompanhante)) {
             return [
                 'sucesso' => false,
-                'mensagem' => 'Convidado não encontrada',
+                'mensagem' => 'Acompanhante não encontrado',
                 'codigo' => 404
             ];
         }
 
         return [
             'sucesso' => true,
-            'dados' => $convidado
+            'dados' => $acompanhante
         ];
     }
 
-    public function listarConvidados()
+    public function listarAcompanhantes()
     {
-        $query = $this->db->prepare('SELECT * FROM convidado');
+        $query = $this->db->prepare('SELECT * FROM acompanhante');
 
-        $convidados = $query->fetchAll();
+        $acompanhante = $query->fetchAll();
 
         return [
             'sucesso' => true,
-            'dados' => $convidados
+            'dados' => $acompanhante
         ];
     }
 
-    public function criarConvidado($convidadoDados)
+    public function criarAcompanhante($acompanhanteDados)
     {
         try {
-            $convidadoDados['cpf'] = preg_replace('/\D/', '', $convidadoDados['cpf']);
-            $convidadoDados['telefone'] = preg_replace('/\D/', '', $convidadoDados['telefone']);
 
 
-
-            // Não pode cadastrar um convidado com confirmação, no banco é default não confirmado.
-            $criar = $this->db->prepare('INSERT INTO convidado (nome, sobrenome, email, cpf, categoria, mesa_idmesa, telefone)
-            VALUES(:nome, :sobrenome, :email, :cpf, :categoria, :mesa_idmesa, :telefone)');
+            $criar = $this->db->prepare('INSERT INTO acompanhante (nome, sobrenome, email, idade, convidado_idconvidado)
+            VALUES(:nome, :sobrenome, :email, :idade, :convidado_idconvidado)');
 
             $criar->execute([
-                ':nome' => $convidadoDados['nome'],
-                ':sobrenome' => $convidadoDados['sobrenome'],
-                ':email' => $convidadoDados['email'],
-                ':cpf' => $convidadoDados['cpf'],
-                ':categoria' => $convidadoDados['categoria'],
-                ':mesa_idmesa' => $convidadoDados['mesa_idmesa'],
-                ':telefone' => $convidadoDados['telefone'],
+                ':nome' => $acompanhanteDados['nome'],
+                ':sobrenome' => $acompanhanteDados['sobrenome'],
+                ':email' => $acompanhanteDados['email'],
+                ':idade' => $acompanhanteDados['categoria'],
+                ':convidado_idconvidado' => $acompanhanteDados['convidado_idconvidado']
             ]);
 
-            // Lógica da mesa lotada;
+
             return [
                 'sucesso' => true,
-                'mensagem' => 'Convidado criado com sucesso'
+                'mensagem' => 'Acompanhante criado com sucesso'
             ];
         } catch (PDOException $e) {
             if (str_contains($e->getMessage(), 'email')) {
                 throw new Exception('Email já em uso', 409);
             }
-            if (str_contains($e->getMessage(), 'cpf')) {
-                throw new Exception('Cpf já em uso', 409);
-            }
 
-            if (str_contains($e->getMessage(), 'fk_convidado_mesa')) {
-                throw new Exception('Mesa referenciada não encontrada', 404);
+            if (str_contains($e->getMessage(), 'fk_acompanhante_convidado')) {
+                throw new Exception('Convidado referenciado não encontrado', 404);
             }
 
 
-            throw new Exception('Erro ao tentar criar convidado', 500);
+            throw new Exception('Erro ao tentar criar acompanhante', 500);
         }
     }
 
 
 
 
-    public function atualizarConvidado($convidadoDados, $emailConvidado)
+    public function atualizarAcompanhante($acompanhanteDados, $emailAcompanhante)
     {
         try {
-            $convidadoDados['cpf'] = preg_replace('/\D/', '', $convidadoDados['cpf']);
-            $convidadoDados['telefone'] = preg_replace('/\D/', '', $convidadoDados['telefone']);
 
-            $convidado = $this->buscarConvidadoPorEmail($emailConvidado);
 
-            if ($convidado['sucesso'] === false) {
-                throw new Exception($convidado['mensagem'], $convidado['codigo']);
+            $acompanhante = $this->buscarAcompanhantePorEmail($emailAcompanhante);
+
+            if ($acompanhante['sucesso'] === false) {
+                throw new Exception($acompanhante['mensagem'], $acompanhante['codigo']);
             }
 
-            if ($convidadoDados['confirmacao'] !== 'cancelado') {
-                throw new Exception('Só é possível cancelar um convidado', 400);
-            }
-
-            if ($convidado['dados']['confirmacao'] === 'confirmado') {
-                throw new Exception('Não é possível cancelar um convidado confirmado', 400);
-            }
-            // Lógica da mesa lotada;
 
 
-            $atualizar = $this->db->prepare('UPDATE convidado SET nome = :nome, sobrenome = :sobrenome, email = :email, cpf = :cpf, categoria = :categoria, confirmacao = :confirmacao, 
-            mesa_idmesa = :mesa_idmesa, telefone = :telefone WHERE email = :email_antigo');
+            $atualizar = $this->db->prepare('UPDATE acompanhante SET nome = :nome, sobrenome = :sobrenome, email = :email, idade = :idade, 
+            convidado_idconvidado = :convidado_idconvidado WHERE email = :email_antigo');
 
             $atualizar->execute([
-                ':nome' => $convidadoDados['nome'],
-                ':sobrenome' => $convidadoDados['sobrenome'],
-                ':email' => $convidadoDados['email'],
-                ':cpf' => $convidadoDados['cpf'],
-                ':categoria' => $convidadoDados['categoria'],
-                ':mesa_idmesa' => $convidadoDados['mesa_idmesa'],
-                ':telefone' => $convidadoDados['telefone'],
-                ':email_antigo' => $emailConvidado
+                ':nome' => $acompanhanteDados['nome'],
+                ':sobrenome' => $acompanhanteDados['sobrenome'],
+                ':email' => $acompanhanteDados['email'],
+                ':idade' => $acompanhanteDados['categoria'],
+                ':convidado_idconvidado' => $acompanhanteDados['convidado_idconvidado'],
+                ':email_antigo' => $emailAcompanhante
             ]);
 
             return [
                 'sucesso'  => true,
-                'mensagem' => 'Convidado atualizado com sucesso'
+                'mensagem' => 'Acompanhante atualizado com sucesso'
             ];
         } catch (PDOException $e) {
             if (str_contains($e->getMessage(), 'email')) {
                 throw new Exception('Email já em uso', 409);
             }
-            if (str_contains($e->getMessage(), 'cpf')) {
-                throw new Exception('Cpf já em uso', 409);
+
+            if (str_contains($e->getMessage(), 'fk_acompanhante_convidado')) {
+                throw new Exception('Convidado referenciado não encontrado', 404);
             }
 
-            if (str_contains($e->getMessage(), 'fk_convidado_mesa')) {
-                throw new Exception('Mesa referenciada não encontrada', 404);
-            }
 
-            throw new Exception('Erro ao tentar atualizar convidado', 500);
+            throw new Exception('Erro ao tentar atualizar acompanhante', 500);
         }
     }
 
-    public function deletarConvidado($emailConvidado)
+    public function deletarAcompanhante($emailAcompanhante)
     {
         try {
-            $convidado = $this->buscarConvidadoPorEmail($emailConvidado);
+            $acompanhante = $this->buscarAcompanhantePorEmail($emailAcompanhante);
 
-            if ($convidado['sucesso'] === false) {
-                throw new Exception($convidado['mensagem'], $convidado['codigo']);
+            if ($acompanhante['sucesso'] === false) {
+                throw new Exception($acompanhante['mensagem'], $acompanhante['codigo']);
             }
 
-            if ($convidado['dados']['confirmacao'] === 'confirmado') {
-                throw new Exception('Não é possível deletar um convidado confirmado', 400);
-            }
-            $deletar = $this->db->prepare('DELETE FROM convidado WHERE email = :email');
+            
+            $deletar = $this->db->prepare('DELETE FROM acompanhante WHERE email = :email');
 
             $deletar->execute([
-                'email' => $emailConvidado
+                'email' => $emailAcompanhante
             ]);
 
             return [
                 'sucesso' => true,
-                'mensagem' => 'Convidado deletada com sucesso'
+                'mensagem' => 'Acompanhante deletado com sucesso'
             ];
         } catch (PDOException $e) {
 
-            if (str_contains($e->getMessage(), 'fk_convidado_mesa')) {
-                throw new Exception('Mesa referenciada não encontrada', 404);
+            if (str_contains($e->getMessage(), 'fk_acompanhante_convidado')) {
+                throw new Exception('Convidado referenciado não encontrado', 404);
             }
 
-            if (str_contains($e->getMessage(), 'parent row')) {
-                throw new Exception('Impossível deletar convidado referenciado', 409);
-            }
-            throw new Exception('Erro ao tentar deletar convidado', 500);
+            throw new Exception('Erro ao tentar deletar acompanhante', 500);
         }
     }
 }

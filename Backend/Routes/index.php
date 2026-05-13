@@ -7,6 +7,8 @@ require_once __DIR__ . "/../Controllers/Usuario/usuarioController.php";
 require_once __DIR__ . "/../Controllers/Mesa/mesaController.php";
 require_once __DIR__ . "/../Controllers/Convidado/convidadoController.php";
 require_once __DIR__ . "/../Controllers/Checkin/checkinController.php";
+require_once __DIR__ . "/../Controllers/Acompanhante/acompanhanteController.php";
+
 
 
 
@@ -99,3 +101,22 @@ if ($rota === '/checkin') {
         $checkinController->criarCheckin();
     }
 }
+
+if ($rota === '/acompanhante') {
+    $acompanhanteController = new AcompanhanteController();
+
+    if ($metodo === 'GET') {
+        $acompanhanteController->listarAcompanhantes();
+    }
+    if ($metodo === 'POST') {
+        $acompanhanteController->criarAcompanhante();
+    }
+    if ($metodo === 'PUT') {
+        $acompanhanteController->atualizarAcompanhante();
+    }
+    if ($metodo === 'DELETE') {
+        $acompanhanteController->deletarAcompanhante();
+    }
+}
+
+

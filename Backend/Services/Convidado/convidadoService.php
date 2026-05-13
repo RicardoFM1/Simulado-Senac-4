@@ -1,6 +1,5 @@
 <?php
 
-use Firebase\JWT\JWT;
 
 require_once __DIR__ . "/../../Connection/db.php";
 
@@ -30,7 +29,7 @@ class ConvidadoService
         if (empty($convidado)) {
             return [
                 'sucesso' => false,
-                'mensagem' => 'Convidado não encontrada',
+                'mensagem' => 'Convidado não encontrado',
                 'codigo' => 404
             ];
         }
@@ -176,7 +175,7 @@ class ConvidadoService
 
             return [
                 'sucesso' => true,
-                'mensagem' => 'Convidado deletada com sucesso'
+                'mensagem' => 'Convidado deletado com sucesso'
             ];
         } catch (PDOException $e) {
 
