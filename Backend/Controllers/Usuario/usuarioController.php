@@ -98,11 +98,20 @@ class UsuarioController
 
     public function fazerLogin()
     {
-        $dados = json_decode(file_get_contents('php://input'), true);
-        http_response_code(200);
+        try {
+            $dados = json_decode(file_get_contents('php://input'), true);
+            http_response_code(200);
 
-        echo json_encode($this->usuarioService->fazerLogin($dados, $this->chaveSecreta));
-        exit;
+            echo json_encode($this->usuarioService->fazerLogin($dados, $this->chaveSecreta));
+            exit;
+        } catch (Exception $e) {
+            http_response_code($e->getCode());
+            echo json_encode([
+                'sucesso' => false,
+                'mensagem' => $e->getMessage()
+            ]);
+            exit;
+        }
     }
 
     public function atualizarUsuario()
