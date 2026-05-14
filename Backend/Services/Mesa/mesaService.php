@@ -43,7 +43,8 @@ class MesaService
 
     public function listarMesas()
     {
-        $query = $this->db->prepare('SELECT * FROM mesa');
+        $query = $this->db->prepare('SELECT * FROM mesa ORDER BY id_mesa DESC');
+        $query->execute();
 
         $mesas = $query->fetchAll();
 

@@ -8,7 +8,7 @@ import Home from './Pages/Home/home';
 import { useState } from 'react';
 
 function App() {
-const [show, setShow] = useState(false)
+const [show, setShow] = useState(true)
 const [telaAtiva, setTelaAtiva] = useState('dashboard')
 
   return (

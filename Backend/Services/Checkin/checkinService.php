@@ -44,7 +44,8 @@ class CheckinService
 
     public function listarCheckins()
     {
-        $query = $this->db->prepare('SELECT * FROM checkin');
+        $query = $this->db->prepare('SELECT * FROM checkin ORDER BY id_checkin DESC');
+        $query->execute();
 
         $checkins = $query->fetchAll();
 

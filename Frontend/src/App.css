@@ -5,7 +5,7 @@
 }
 
 
-.btn {
+.btn:not(.ignorar-css-btn) {
    background-color: rgb(244, 207, 255) !important;
    border: none !important;
     color: black !important;

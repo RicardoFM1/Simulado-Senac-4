@@ -13,7 +13,7 @@ const Home = ({setShow, show, setTelaAtiva, telaAtiva}) => {
         <>
         <Header setShow={setShow} show={show}></Header>
 
-        <Container>
+        <Container >
             <Row>
                 <Col lg={3}>
                 <Sidebar setShow={setShow} show={show} setTelaAtiva={setTelaAtiva} telaAtiva={telaAtiva} />

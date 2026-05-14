@@ -70,8 +70,8 @@ class ConvidadoService
 
     public function listarConvidados()
     {
-        $query = $this->db->prepare('SELECT * FROM convidado');
-
+        $query = $this->db->prepare('SELECT * FROM convidado ORDER BY id_convidado DESC');
+        $query->execute();
         $convidados = $query->fetchAll();
 
         return [
@@ -170,6 +170,7 @@ class ConvidadoService
                 ':sobrenome' => $convidadoDados['sobrenome'],
                 ':email' => $convidadoDados['email'],
                 ':cpf' => $convidadoDados['cpf'],
+                ':confirmacao' => $convidadoDados['confirmacao'],
                 ':categoria' => $convidadoDados['categoria'],
                 ':mesa_idmesa' => $convidadoDados['mesa_idmesa'],
                 ':telefone' => $convidadoDados['telefone'],
@@ -192,7 +193,7 @@ class ConvidadoService
                 throw new Exception('Mesa referenciada não encontrada', 404);
             }
 
-            throw new Exception('Erro ao tentar atualizar convidado', 500);
+            throw new Exception('Erro ao tentar atualizar convidado' . $e->getMessage(), 500);
         }
     }
 

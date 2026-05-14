@@ -8,7 +8,7 @@ require_once __DIR__ . "/../Controllers/Mesa/mesaController.php";
 require_once __DIR__ . "/../Controllers/Convidado/convidadoController.php";
 require_once __DIR__ . "/../Controllers/Checkin/checkinController.php";
 require_once __DIR__ . "/../Controllers/Acompanhante/acompanhanteController.php";
-require_once __DIR__ . "/../Controllers/Dashboard/dashboardController.php";
+require_once __DIR__ . "/../Controllers/Dashboard/dashboard.php";
 
 
 
@@ -122,7 +122,7 @@ if ($rota === '/acompanhante') {
     }
 }
 
-if($rota === 'dashboard'){
+if($rota === '/dashboard'){
     $dashboardController = new DashboardController();
 
     if($metodo === 'GET'){

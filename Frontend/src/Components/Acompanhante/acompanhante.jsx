@@ -1,11 +1,157 @@
 
+import { useEffect, useState } from "react";
+import Api from "../../API/api";
+import { Button, Card } from "react-bootstrap";
+import { CiEdit } from "react-icons/ci";
+import { MdDelete } from "react-icons/md";
+import { IoMdAddCircleOutline } from "react-icons/io";
+import { toast } from "react-toastify";
+import Tabela from "../Tabela/tabela";
+import AcompanhanteModal from "../Modais/Acompanhante/acompanhanteModal";
+import style from "./acompanhante.module.css"
 
-const Acompanhante = () => {
+function Acompanhantes() {
+    const [acompanhantes, setAcompanhantes] = useState([]);
+    const [convidados, setConvidados] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [showModalDeletar, setShowModalDeletar] = useState(false);
+    const [dadosForm, setDadosForm] = useState(null);
+
+    const buscarAcompanhantes = async () => {
+        try {
+            const res = await Api.get("/acompanhante");
+            setAcompanhantes(res.data);
+        } catch (err) {
+            toast.error("Erro ao buscar acompanhantes");
+            console.log(err);
+        }
+    };
+
+    const buscarConvidados = async () => {
+        try {
+            const res = await Api.get("/convidado");
+            setConvidados(res.data.dados);
+        } catch (err) {
+            toast.error("Erro ao buscar convidados");
+            console.log(err);
+        }
+    };
+
+    useEffect(() => {
+        buscarAcompanhantes();
+        buscarConvidados();
+    }, []);
+
+    const handleEdit = (row) => {
+        setDadosForm(row);
+        setShowModal(true);
+    };
+
+    const handleDelete = async (row) => {
+        setDadosForm(row);
+        setShowModalDeletar(true);
+    };
+
+    const columns = [
+        { header: "Id", accessor: "id_acompanhante" },
+        { header: "Nome", accessor: "nome" },
+        { header: "Sobrenome", accessor: "sobrenome" },
+        { header: "CPF", accessor: "cpf" },
+        { header: "Idade", accessor: "idade" },
+        { header: "CPF(convidado)", accessor: "convidado_cpf" },
+        {
+            header: "Ações",
+            accessor: "acoes",
+            render: (row) => (
+                <div className="d-flex gap-2">
+                    <Button
+                        className="ignorar-fonte-btn"
+                        variant="warning"
+                        size="sm"
+                        onClick={() => handleEdit(row)}
+                    >
+                        <CiEdit />
+                    </Button>
+                    <Button
+                        className="ignorar-fonte-btn"
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(row)}
+                    >
+                        <MdDelete />
+                    </Button>
+                </div>
+            ),
+        },
+    ];
+
+    const enviarDadosForm = async (dados, editando) => {
+        try {
+            if (editando) {
+                const res = await Api.put(`/acompanhante?id_acompanhante=${dadosForm.id_acompanhante}`, dados);
+                if (res.status === 200) {
+                    toast.success(res.data.mensagem);
+                    await buscarAcompanhantes();
+                    setShowModal(false);
+                }
+            } else {
+                const res = await Api.post("/acompanhante", dados);
+                if (res.status === 201) {
+                    toast.success(res.data.mensagem);
+                    await buscarAcompanhantes();
+                    setShowModal(false);
+                }
+            }
+        } catch (err) {
+            toast.error(err.response?.data.mensagem || "Erro ao enviar dados");
+        }
+    };
+
+    const deletarAcompanhante = async () => {
+        try {
+            const res = await Api.delete(`/acompanhante?id_acompanhante=${dadosForm.id_acompanhante}`);
+            if (res.status === 200) {
+                toast.success(res.data.mensagem);
+                await buscarAcompanhantes();
+                setShowModalDeletar(false);
+            }
+        } catch (err) {
+            toast.error(err.response?.data.mensagem || "Erro ao deletar acompanhante");
+        }
+    };
+
     return (
         <>
-        <h1 className="mx-3 my-3">Acompanhante</h1>
+            <h1>Acompanhantes</h1>
+            <Card className={style.card}>
+                <Card.Body className={style.cardBody}>
+                    Total de acompanhantes:
+                    <span className={style.cardSpan}>
+                        {" "}
+                        <strong>{acompanhantes?.total}</strong>{" "}
+                    </span>
+                </Card.Body>
+            </Card>
+            <Button
+                onClick={() => {
+                    setShowModal(true);
+                    setDadosForm(null);
+                }}
+                className="my-3 ignorar-fonte-btn"
+                variant="primary"
+            >
+                <IoMdAddCircleOutline /> Criar novo
+            </Button>
+            <Tabela columns={columns} rows={acompanhantes?.dados} key={"id_acompanhante"} />
+            <AcompanhanteModal
+                convidados={convidados}
+                dados={dadosForm}
+                handleClose={() => setShowModal(false)}
+                show={showModal}
+                onSubmit={enviarDadosForm}
+            />
         </>
-    )
+    );
 }
 
-export default Acompanhante
+export default Acompanhantes;

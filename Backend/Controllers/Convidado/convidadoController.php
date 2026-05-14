@@ -19,14 +19,14 @@ class ConvidadoController
     public function validarDados($dados)
     {
         try {
-            $confirmacaoPermitida = ['confirmado', 'não confirmado', 'cancelado'];
+           
 
             $esquema = v::key('nome', v::stringVal()->notEmpty()->length(1, 45))
                 ->key('sobrenome', v::stringVal()->notEmpty()->length(1, 45))
                 ->key('email', v::email())
                 ->key('cpf', v::cpf())
                 ->key('categoria', v::stringVal()->notEmpty())
-                ->key('confirmacao', v::in($confirmacaoPermitida))
+    
                 ->key('telefone', v::phone())
                 ->key('mesa_idmesa', v::intVal());
 
@@ -38,7 +38,7 @@ class ConvidadoController
                 'email' => 'Email inválido',
                 'cpf' => 'Cpf inválido',
                 'categoria' => 'Categoria inválida',
-                'confirmacao' => 'Confirmacao fora do escopo: confirmado, não confirmado ou cancelado apenas',
+                
                 'telefone' => 'Telefone inválido',
                 'mesa_idmesa' => 'Referência da mesa inválida'
             ];
