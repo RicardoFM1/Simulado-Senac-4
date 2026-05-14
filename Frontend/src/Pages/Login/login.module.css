@@ -1,0 +1,19 @@
+.ContainerLogin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    height: 90vh;
+}
+
+.CardLogin { 
+  
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+     background-color: rgb(244, 207, 255) !important;
+}
+
+.tituloCard {
+    font-size: 32px;
+}
