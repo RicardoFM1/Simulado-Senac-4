@@ -86,7 +86,12 @@ class ConvidadoService
             $convidadoDados['cpf'] = preg_replace('/\D/', '', $convidadoDados['cpf']);
             $convidadoDados['telefone'] = preg_replace('/\D/', '', $convidadoDados['telefone']);
 
+            $mesaComReferencia = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
+            $convidadosNaMesa = $this->buscarConvidadoPorMesaId($convidadoDados['mesa_idmesa']);
 
+            if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade']) {
+                throw new Exception('Mesa lotada', 409);
+            }
 
             // Não pode cadastrar um convidado com confirmação, no banco é default não confirmado.
             $criar = $this->db->prepare('INSERT INTO convidado (nome, sobrenome, email, cpf, categoria, mesa_idmesa, telefone)
@@ -102,12 +107,7 @@ class ConvidadoService
                 ':telefone' => $convidadoDados['telefone'],
             ]);
 
-            $mesaComReferencia = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
-            $convidadosNaMesa = $this->buscarConvidadoPorMesaId($convidadoDados['mesa_idmesa']);
-
-            if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade']) {
-                throw new Exception('Mesa lotada', 409);
-            }
+            
 
             return [
                 'sucesso' => true,
@@ -211,7 +211,7 @@ class ConvidadoService
             $deletar = $this->db->prepare('DELETE FROM convidado WHERE email = :email');
 
             $deletar->execute([
-                'email' => $emailConvidado
+                ':email' => $emailConvidado
             ]);
 
             return [
