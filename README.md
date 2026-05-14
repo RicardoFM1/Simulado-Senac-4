@@ -199,7 +199,7 @@ VALUES (100, 'Lactose');
 DELIMITER $$
 CREATE PROCEDURE seed_convidados()
 BEGIN
-DECLARE i INT DEFAULT 0;
+DECLARE i INT DEFAULT 1;
 WHILE i <= 30 DO
 INSERT INTO convidado(nome, sobrenome, email, cpf, categoria, confirmacao, mesa_idmesa, telefone)
 VALUES(
@@ -212,11 +212,13 @@ VALUES(
     1, 
     CONCAT('519999', LPAD(i, 4, '0'))
     
-)
-
+);
+SET i = i+1;
 END while;
 END$$
 DELIMITER ;
+
+call seed_convidados();
 
 INSERT INTO checkin (usuario_idusuario, convidado_idconvidado, data_e_hora)
 VALUES(1, 1, '2026-05-13');
@@ -227,6 +229,7 @@ VALUES('Fernando', 'Braga', 'fernando@gmail.com', 18, 1);
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
 
 
 ```

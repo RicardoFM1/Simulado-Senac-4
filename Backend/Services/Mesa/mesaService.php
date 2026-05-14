@@ -127,7 +127,7 @@ class MesaService
             $deletar = $this->db->prepare('DELETE FROM mesa WHERE id_mesa = :id_mesa');
 
             $deletar->execute([
-                'id_mesa' => $idMesa
+                ':id_mesa' => $idMesa
             ]);
 
             return [
