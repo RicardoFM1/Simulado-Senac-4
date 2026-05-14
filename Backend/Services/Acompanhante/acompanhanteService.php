@@ -64,7 +64,7 @@ class AcompanhanteService
                 ':nome' => $acompanhanteDados['nome'],
                 ':sobrenome' => $acompanhanteDados['sobrenome'],
                 ':email' => $acompanhanteDados['email'],
-                ':idade' => $acompanhanteDados['categoria'],
+                ':idade' => $acompanhanteDados['idade'],
                 ':convidado_idconvidado' => $acompanhanteDados['convidado_idconvidado']
             ]);
 
@@ -110,7 +110,7 @@ class AcompanhanteService
                 ':nome' => $acompanhanteDados['nome'],
                 ':sobrenome' => $acompanhanteDados['sobrenome'],
                 ':email' => $acompanhanteDados['email'],
-                ':idade' => $acompanhanteDados['categoria'],
+                ':idade' => $acompanhanteDados['idade'],
                 ':convidado_idconvidado' => $acompanhanteDados['convidado_idconvidado'],
                 ':email_antigo' => $emailAcompanhante
             ]);
