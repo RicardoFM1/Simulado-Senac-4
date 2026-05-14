@@ -296,7 +296,7 @@ MÉTODOS: MÉTODOS: GET, POST (TODOS PRECISAM DE AUTENTICAÇÃO)
 
 ```json
 "usuario_idusuario": 1,
-"convidado_idconvidado", 1
+"convidado_idconvidado": 1
 
 ```
 
