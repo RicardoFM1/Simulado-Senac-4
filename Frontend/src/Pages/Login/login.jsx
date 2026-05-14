@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Button, Card, Container, Form, InputGroup, Stack } from "react-bootstrap";
 import style from "./login.module.css"
 import { TbLockPassword } from "react-icons/tb";
+import { toast } from "react-toastify";
+import Api from "../../Api/api";
+import { useNavigate } from "react-router";
 
 
 const Login = () => {
@@ -10,6 +13,7 @@ const Login = () => {
         senha: ""
     })
 
+    const navigate = useNavigate();
     const handleChange = (e) => {
         const {name, value} = e.target;
 
@@ -18,13 +22,27 @@ const Login = () => {
         setFormData((prev) => ({...prev, [name]: value}))
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault; 
+    const handleSubmit = async (e) => {
+        e.preventDefault(); 
 
         try{
-
-        }catch(err){
+            const res = await Api.post('/usuario/login', formData)
             
+            if(res.status === 200){
+                toast.success('Usuário logado com sucesso')
+                localStorage.setItem('token', res.data.token)
+                navigate('/')
+            }
+        }catch(err){
+            const erros = err.response?.data?.erros
+
+            if(erros){
+                Object.values(erros).forEach((msg) => {
+                    toast.error(msg)
+                })
+            }else{
+                toast.error(err.response?.data?.mensagem || "Erro ao enviar dados")
+            }
         }
     }
     return (

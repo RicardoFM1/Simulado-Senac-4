@@ -27,6 +27,7 @@ header('Access-Control-Allow-Credentials: true');
 
 if ($metodo === 'OPTIONS') {
     http_response_code(200);
+    echo 'ok';
 }
 
 
