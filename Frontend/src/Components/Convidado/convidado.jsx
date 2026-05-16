@@ -1,11 +1,12 @@
 import { toast } from "react-toastify"
-import Api from "../../Api/api";
+import Api from "../../Services/api";
 import { useEffect, useState } from "react";
 import { Button, Stack } from "react-bootstrap";
 import { CiEdit } from "react-icons/ci";
 import { MdDelete } from "react-icons/md";
 import Tabela from "../Tabela/tabela";
 import ConvidadoModal from "../Modais/Convidado/convidadoModal";
+import DeleteModal from "../Modais/DeleteModal";
 
 
 
@@ -13,6 +14,7 @@ const Convidado = () => {
     const [convidados, setConvidados] = useState([])
     const [convidadoSelecionado, setConvidadoSelecionado] = useState(null)
     const [show, setShow] = useState(false)
+    const [showDelete, setShowDelete] = useState(false)
 
 
     const buscarConvidados = async () => {
@@ -21,7 +23,6 @@ const Convidado = () => {
 
             if (res.status === 200) {
                 setConvidados(res.data.dados)
-                console.log(res.data.dados)
             }
         } catch (err) {
             toast.error(err.response?.data?.mensagem);
@@ -35,11 +36,24 @@ const Convidado = () => {
     const handleEdit = (row) => {
         setShow(true)
         setConvidadoSelecionado(row)
-        console.log(row)
     }
 
     const handleDelete = (row) => {
+        setConvidadoSelecionado(row)
+        setShowDelete(true)
+    }
 
+    const handleConfirmDelete = async () => {
+        try {
+            const res = await Api.delete(`/convidado?email_convidado=${convidadoSelecionado.email}`)
+            if (res.status === 200) {
+                toast.success(res.data.mensagem)
+                setShowDelete(false)
+                buscarConvidados()
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.mensagem || "Erro ao deletar convidado")
+        }
     }
 
     const handleNovo = () => {
@@ -112,8 +126,15 @@ const Convidado = () => {
         <>
             <h1 className="mx-3 my-3">Convidados</h1>
             <Button className="mx-3 my-3" onClick={handleNovo}>Adicionar novo</Button>
-            <Tabela columns={columns} rows={convidados} key={'id_convidado'} />
-            <ConvidadoModal show={show} dados={convidadoSelecionado} handleClose={handleClose} submit={enviarDados}/>
+            <Tabela columns={columns} rows={convidados} chave={'id_convidado'} />
+            <ConvidadoModal show={show} dados={convidadoSelecionado} handleClose={handleClose} submit={enviarDados} />
+            <DeleteModal
+                show={showDelete}
+                handleClose={() => setShowDelete(false)}
+                handleConfirm={handleConfirmDelete}
+                title="Excluir Convidado"
+                message={`Tem certeza que deseja excluir o convidado ${convidadoSelecionado?.nome}?`}
+            />
         </>
     )
 }

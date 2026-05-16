@@ -1,6 +1,5 @@
-
 import { useEffect, useState } from "react";
-import Api from "../../API/api";
+import Api from "../../Services/api";
 import { Button, Card } from "react-bootstrap";
 import { CiEdit } from "react-icons/ci";
 import { MdDelete } from "react-icons/md";
@@ -8,6 +7,7 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { toast } from "react-toastify";
 import Tabela from "../Tabela/tabela";
 import AcompanhanteModal from "../Modais/Acompanhante/acompanhanteModal";
+import DeleteModal from "../Modais/DeleteModal";
 import style from "./acompanhante.module.css"
 
 function Acompanhantes() {
@@ -47,7 +47,7 @@ function Acompanhantes() {
         setShowModal(true);
     };
 
-    const handleDelete = async (row) => {
+    const handleDelete = (row) => {
         setDadosForm(row);
         setShowModalDeletar(true);
     };
@@ -142,13 +142,20 @@ function Acompanhantes() {
             >
                 <IoMdAddCircleOutline /> Criar novo
             </Button>
-            <Tabela columns={columns} rows={acompanhantes?.dados} key={"id_acompanhante"} />
+            <Tabela columns={columns} rows={acompanhantes?.dados} chave={"id_acompanhante"} />
             <AcompanhanteModal
                 convidados={convidados}
                 dados={dadosForm}
                 handleClose={() => setShowModal(false)}
                 show={showModal}
                 onSubmit={enviarDadosForm}
+            />
+            <DeleteModal
+                show={showModalDeletar}
+                handleClose={() => setShowModalDeletar(false)}
+                handleConfirm={deletarAcompanhante}
+                title="Excluir Acompanhante"
+                message={`Tem certeza que deseja excluir o acompanhante ${dadosForm?.nome}?`}
             />
         </>
     );

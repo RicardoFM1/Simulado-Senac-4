@@ -18,7 +18,8 @@ $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
 
-$rota = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$rota = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+if (empty($rota)) $rota = '/';
 $metodo = $_SERVER['REQUEST_METHOD'];
 
 
@@ -29,7 +30,7 @@ header('Access-Control-Allow-Credentials: true');
 
 if ($metodo === 'OPTIONS') {
     http_response_code(200);
-    echo 'ok';
+    exit;
 }
 
 
@@ -122,16 +123,24 @@ if ($rota === '/acompanhante') {
     }
 }
 
-if($rota === '/dashboard'){
+if ($rota === '/dashboard') {
     $dashboardController = new DashboardController();
 
-    if($metodo === 'GET'){
+    if ($metodo === 'GET') {
         $dashboardController->listarDashboard();
     }
 }
 
-if($rota === '/retrieve'){
+if ($rota === '/retrieve') {
     http_response_code(200);
     echo json_encode(Middleware::validarMiddleware());
     exit;
 }
+
+
+http_response_code(404);
+echo json_encode([
+    'sucesso' => false,
+    'mensagem' => 'Rota não encontrada',
+    'codigo' => 404
+]);

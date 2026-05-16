@@ -2,7 +2,8 @@ import { useEffect, useState } from "react"
 import { Button } from "react-bootstrap"
 import { toast } from "react-toastify"
 import Tabela from "../Tabela/tabela"
-import Api from "../../Api/api"
+import Api from "../../Services/api"
+import CheckinModal from "../Modais/Checkin/checkinModal"
 
 
 const Checkin = () => {
@@ -15,11 +16,10 @@ const Checkin = () => {
             const res = await Api.get('/checkin');
 
             if (res.status === 200) {
-                setCheckins(res.data.dados)
-                console.log(res.data.dados)
+                setCheckins(res.data?.dados)
             }
         } catch (err) {
-            toast.error(err.response?.data?.mensagem);
+            toast.error(err.response?.data?.mensagem || "Erro ao buscar check-ins");
         }
     }
 
@@ -27,30 +27,40 @@ const Checkin = () => {
         buscarCheckins();
     }, [])
 
-   
     const handleNovo = () => {
-
+        setShow(true)
     }
 
     const handleClose = () => {
+        setShow(false)
+        buscarCheckins()
+    }
 
+    const realizarCheckin = async (dados) => {
+        try {
+            const res = await Api.post('/checkin', dados);
+            if (res.status === 201) {
+                toast.success(res.data.mensagem);
+                handleClose();
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.mensagem || "Erro ao realizar check-in");
+        }
     }
 
     const columns = [
-        { header: 'Id do checkin', accessor: 'id_checkin' },
-        { header: 'Id do usuário', accessor: 'usuario_idusuario' },
-        // Colocar listagem melhor depois
-        { header: 'Id do convidado', accessor: 'convidado_idconvidado' },
+        { header: 'Id', accessor: 'id_checkin' },
+        { header: 'Usuário', accessor: 'usuario' },
+        { header: 'Convidado', accessor: 'convidado' },
         { header: 'Data e hora', accessor: 'data_e_hora' },
-       
-    
-
     ]
+
     return (
         <>
-        <h1 className="mx-3 my-3">Checkin</h1>
-         <Button className="mx-3 my-3">Adicionar novo</Button>
-        <Tabela columns={columns} rows={checkins} key={'id_checkin'} />
+            <h1 className="mx-3 my-3">Check-in</h1>
+            <Button className="mx-3 my-3" onClick={handleNovo}>Realizar Novo Check-in</Button>
+            <Tabela columns={columns} rows={checkins} chave={'id_checkin'} />
+            <CheckinModal show={show} handleClose={() => setShow(false)} submit={realizarCheckin} />
         </>
     )
 }

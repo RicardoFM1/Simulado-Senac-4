@@ -3,11 +3,11 @@ import { Button, Card, Container, Form, InputGroup, Stack } from "react-bootstra
 import style from "./login.module.css"
 import { TbLockPassword } from "react-icons/tb";
 import { toast } from "react-toastify";
-import Api from "../../Api/api";
+import Api from "../../Services/api";
 import { useNavigate } from "react-router";
 
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
     const [formData, setFormData] = useState({
         email: "",
         senha: ""
@@ -15,32 +15,33 @@ const Login = () => {
 
     const navigate = useNavigate();
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
 
-        if(!name) return;
+        if (!name) return;
 
-        setFormData((prev) => ({...prev, [name]: value}))
+        setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); 
+        e.preventDefault();
 
-        try{
+        try {
             const res = await Api.post('/usuario/login', formData)
-            
-            if(res.status === 200){
+
+            if (res.status === 200) {
                 toast.success('Usuário logado com sucesso')
                 localStorage.setItem('token', res.data.token)
+                if (onLoginSuccess) await onLoginSuccess()
                 navigate('/')
             }
-        }catch(err){
+        } catch (err) {
             const erros = err.response?.data?.erros
 
-            if(erros){
+            if (erros) {
                 Object.values(erros).forEach((msg) => {
                     toast.error(msg)
                 })
-            }else{
+            } else {
                 toast.error(err.response?.data?.mensagem || "Erro ao enviar dados")
             }
         }

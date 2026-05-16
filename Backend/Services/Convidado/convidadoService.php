@@ -52,7 +52,7 @@ class ConvidadoService
             ':mesa_idmesa' => $idMesa
         ]);
 
-        $convidado = $buscar->fetch();
+        $convidado = $buscar->fetchAll();
 
         if (empty($convidado)) {
             return [
@@ -89,8 +89,12 @@ class ConvidadoService
             $mesaComReferencia = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
             $convidadosNaMesa = $this->buscarConvidadoPorMesaId($convidadoDados['mesa_idmesa']);
 
-            if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade']) {
-                throw new Exception('Mesa lotada', 409);
+
+            if (isset($convidadosNaMesa['dados'])) {
+
+                if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade']) {
+                    throw new Exception('Mesa lotada', 409);
+                }
             }
 
             // Não pode cadastrar um convidado com confirmação, no banco é default não confirmado.
@@ -107,7 +111,7 @@ class ConvidadoService
                 ':telefone' => $convidadoDados['telefone'],
             ]);
 
-            
+
 
             return [
                 'sucesso' => true,
@@ -157,10 +161,11 @@ class ConvidadoService
             $mesaComReferencia = new MesaService()->buscarMesaPorId($convidadoDados['mesa_idmesa']);
             $convidadosNaMesa = $this->buscarConvidadoPorMesaId($convidadoDados['mesa_idmesa']);
 
-            if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade'] && $convidado['dados']['mesa_idmesa'] !== $convidadoDados['mesa_idmesa']) {
-                throw new Exception('Mesa lotada', 409);
+            if (isset($convidadosNaMesa['dados'])) {
+                if (count($convidadosNaMesa['dados']) >= $mesaComReferencia['dados']['capacidade'] && $convidado['dados']['mesa_idmesa'] !== $convidadoDados['mesa_idmesa']) {
+                    throw new Exception('Mesa lotada', 409);
+                }
             }
-
 
             $atualizar = $this->db->prepare('UPDATE convidado SET nome = :nome, sobrenome = :sobrenome, email = :email, cpf = :cpf, categoria = :categoria, confirmacao = :confirmacao, 
             mesa_idmesa = :mesa_idmesa, telefone = :telefone WHERE email = :email_antigo');

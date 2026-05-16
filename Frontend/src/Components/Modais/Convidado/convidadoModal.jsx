@@ -166,7 +166,7 @@ const ConvidadoModal = ({ dados, show, handleClose, submit }) => {
                                 name="mesa_idmesa"
                                 onChange={handleChange}
                                 placeholder="Mesa do convidado"
-                                required={!editando}
+                               
 
                             />
                         </Form.Group>
